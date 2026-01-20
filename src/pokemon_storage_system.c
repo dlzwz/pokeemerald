@@ -52,8 +52,6 @@
 
 // PC main menu options
 enum {
-    OPTION_WITHDRAW,
-    OPTION_DEPOSIT,
     OPTION_MOVE_MONS,
     OPTION_MOVE_ITEMS,
     OPTION_EXIT,
@@ -881,8 +879,6 @@ struct {
     const u8 *desc;
 } static const sMainMenuTexts[OPTIONS_COUNT] =
 {
-    [OPTION_WITHDRAW]   = {gText_WithdrawPokemon, gText_WithdrawMonDescription},
-    [OPTION_DEPOSIT]    = {gText_DepositPokemon,  gText_DepositMonDescription},
     [OPTION_MOVE_MONS]  = {gText_MovePokemon,     gText_MoveMonDescription},
     [OPTION_MOVE_ITEMS] = {gText_MoveItems,       gText_MoveItemsDescription},
     [OPTION_EXIT]       = {gText_SeeYa,           gText_SeeYaDescription}
@@ -893,8 +889,8 @@ static const struct WindowTemplate sWindowTemplate_MainMenu =
     .bg = 0,
     .tilemapLeft = 1,
     .tilemapTop = 1,
-    .width = 17,
-    .height = 10,
+    .width = 12,
+    .height = 6,
     .paletteNum = 15,
     .baseBlock = 0x1,
 };
@@ -1582,26 +1578,9 @@ static void Task_PCMainMenu(u8 taskId)
             DestroyTask(taskId);
             break;
         default:
-            if (task->tInput == OPTION_WITHDRAW && CountPartyMons() == PARTY_SIZE)
-            {
-                // Can't withdraw
-                FillWindowPixelBuffer(0, PIXEL_FILL(1));
-                AddTextPrinterParameterized2(0, FONT_NORMAL, gText_PartyFull, 0, NULL, TEXT_COLOR_DARK_GRAY, TEXT_COLOR_WHITE, TEXT_COLOR_LIGHT_GRAY);
-                task->tState = STATE_ERROR_MSG;
-            }
-            else if (task->tInput == OPTION_DEPOSIT && CountPartyMons() == 1)
-            {
-                // Can't deposit
-                FillWindowPixelBuffer(0, PIXEL_FILL(1));
-                AddTextPrinterParameterized2(0, FONT_NORMAL, gText_JustOnePkmn, 0, NULL, TEXT_COLOR_DARK_GRAY, TEXT_COLOR_WHITE, TEXT_COLOR_LIGHT_GRAY);
-                task->tState = STATE_ERROR_MSG;
-            }
-            else
-            {
-                // Enter PC
-                FadeScreen(FADE_TO_BLACK, 0);
-                task->tState = STATE_ENTER_PC;
-            }
+            // Enter PC
+            FadeScreen(FADE_TO_BLACK, 0);
+            task->tState = STATE_ENTER_PC;
             break;
         }
         break;
@@ -2066,7 +2045,7 @@ static void ResetForPokeStorage(void)
 static void InitStartingPosData(void)
 {
     ClearSavedCursorPos();
-    sInPartyMenu = (sStorage->boxOption == OPTION_DEPOSIT);
+    sInPartyMenu = FALSE;
     sDepositBoxId = 0;
 }
 
@@ -5787,10 +5766,7 @@ static struct Sprite *CreateChooseBoxArrows(u16 x, u16 y, u8 animId, u8 priority
 
 static void InitCursor(void)
 {
-    if (sStorage->boxOption != OPTION_DEPOSIT)
-        sCursorArea = CURSOR_AREA_IN_BOX;
-    else
-        sCursorArea = CURSOR_AREA_IN_PARTY;
+    sCursorArea = CURSOR_AREA_IN_BOX;
 
     sCursorPosition = 0;
     sIsMonBeingMoved = FALSE;
@@ -7367,9 +7343,6 @@ static u8 HandleInput_InParty(void)
         {
             if (sCursorPosition == PARTY_SIZE)
             {
-                if (sStorage->boxOption == OPTION_DEPOSIT)
-                    return INPUT_CLOSE_BOX;
-
                 gotoBox = TRUE;
             }
             else if (SetSelectionMenuTexts())
@@ -7401,9 +7374,6 @@ static u8 HandleInput_InParty(void)
 
         if (JOY_NEW(B_BUTTON))
         {
-            if (sStorage->boxOption == OPTION_DEPOSIT)
-                return INPUT_PRESSED_B;
-
             gotoBox = TRUE;
         }
 
@@ -7624,18 +7594,6 @@ static bool8 SetMenuTexts_Mon(void)
 
     switch (sStorage->boxOption)
     {
-    case OPTION_DEPOSIT:
-        if (species != SPECIES_NONE)
-            SetMenuText(MENU_STORE);
-        else
-            return FALSE;
-        break;
-    case OPTION_WITHDRAW:
-        if (species != SPECIES_NONE)
-            SetMenuText(MENU_WITHDRAW);
-        else
-            return FALSE;
-        break;
     case OPTION_MOVE_MONS:
         if (sIsMonBeingMoved)
         {
