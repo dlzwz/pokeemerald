@@ -9932,6 +9932,9 @@ static void Cmd_handleballthrow(void)
             }
         }
 
+        // Force 100% capture rate in wild encounters
+        odds = 255;
+
         if (odds > 254) // mon caught
         {
             BtlController_EmitBallThrowAnim(BUFFER_A, BALL_3_SHAKES_SUCCESS);
