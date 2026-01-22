@@ -7601,11 +7601,19 @@ static bool8 SetMenuTexts_Mon(void)
                 SetMenuText(MENU_SHIFT);
             else
                 SetMenuText(MENU_PLACE);
+            SetMenuText(MENU_SUMMARY);
         }
         else
         {
             if (species != SPECIES_NONE)
+            {
+                if (sCursorArea == CURSOR_AREA_IN_BOX)
+                    SetMenuText(MENU_WITHDRAW);
+                else
+                    SetMenuText(MENU_STORE);
+                SetMenuText(MENU_SUMMARY);
                 SetMenuText(MENU_MOVE);
+            }
             else
                 return FALSE;
         }
@@ -7613,15 +7621,6 @@ static bool8 SetMenuTexts_Mon(void)
     case OPTION_MOVE_ITEMS:
     default:
         return FALSE;
-    }
-
-    SetMenuText(MENU_SUMMARY);
-    if (sStorage->boxOption == OPTION_MOVE_MONS)
-    {
-        if (sCursorArea == CURSOR_AREA_IN_BOX)
-            SetMenuText(MENU_WITHDRAW);
-        else
-            SetMenuText(MENU_STORE);
     }
 
     SetMenuText(MENU_MARK);
