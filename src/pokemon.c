@@ -47,6 +47,7 @@
 #include "constants/songs.h"
 #include "constants/trainers.h"
 #include "constants/union_room.h"
+#include "level_caps.h"
 
 #define DAY_EVO_HOUR_BEGIN       12
 #define DAY_EVO_HOUR_END         HOURS_PER_DAY
@@ -4900,7 +4901,7 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
 
             // Rare Candy
             if ((itemEffect[i] & ITEM3_LEVEL_UP)
-             && GetMonData(mon, MON_DATA_LEVEL, NULL) != MAX_LEVEL)
+             && GetMonData(mon, MON_DATA_LEVEL, NULL) < GetCurrentLevelCap())
             {
                 dataUnsigned = gExperienceTables[gSpeciesInfo[GetMonData(mon, MON_DATA_SPECIES, NULL)].growthRate][GetMonData(mon, MON_DATA_LEVEL, NULL) + 1];
                 SetMonData(mon, MON_DATA_EXP, &dataUnsigned);
@@ -6208,12 +6209,15 @@ bool8 TryIncrementMonLevel(struct Pokemon *mon)
     u16 species = GetMonData(mon, MON_DATA_SPECIES, 0);
     u8 nextLevel = GetMonData(mon, MON_DATA_LEVEL, 0) + 1;
     u32 expPoints = GetMonData(mon, MON_DATA_EXP, 0);
-    if (expPoints > gExperienceTables[gSpeciesInfo[species].growthRate][MAX_LEVEL])
+    u8 levelCap = GetCurrentLevelCap();
+
+    // Cap experience at level cap's experience threshold
+    if (expPoints > gExperienceTables[gSpeciesInfo[species].growthRate][levelCap])
     {
-        expPoints = gExperienceTables[gSpeciesInfo[species].growthRate][MAX_LEVEL];
+        expPoints = gExperienceTables[gSpeciesInfo[species].growthRate][levelCap];
         SetMonData(mon, MON_DATA_EXP, &expPoints);
     }
-    if (nextLevel > MAX_LEVEL || expPoints < gExperienceTables[gSpeciesInfo[species].growthRate][nextLevel])
+    if (nextLevel > levelCap || expPoints < gExperienceTables[gSpeciesInfo[species].growthRate][nextLevel])
     {
         return FALSE;
     }
