@@ -14,15 +14,15 @@
 // Gym 8 (Juan): Lv 46 - Kingdra
 // Champion (Wallace): Lv 58 - Milotic
 static const u8 sBadgeLevelCaps[NUM_BADGES + 1] = {
-    [0] = 15,  // Before any badges
-    [1] = 19,  // After Badge 1
-    [2] = 24,  // After Badge 2
-    [3] = 29,  // After Badge 3
-    [4] = 31,  // After Badge 4
-    [5] = 33,  // After Badge 5
-    [6] = 42,  // After Badge 6
-    [7] = 46,  // After Badge 7
-    [8] = 58,  // After Badge 8, before Champion
+    [0] = 12,  // Before any badges
+    [1] = 16,  // After Badge 1
+    [2] = 19,  // After Badge 2
+    [3] = 23,  // After Badge 3
+    [4] = 25,  // After Badge 4
+    [5] = 27,  // After Badge 5
+    [6] = 37,  // After Badge 6
+    [7] = 38,  // After Badge 7
+    [8] = 51,  // After Badge 8, before Champion
 };
 
 u8 GetCurrentLevelCap(void)
