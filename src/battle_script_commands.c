@@ -3397,6 +3397,18 @@ static void Cmd_getexp(void)
                         i = STRINGID_EMPTYSTRING4;
                     }
 
+                    // Cap experience to level cap threshold
+                    {
+                        struct Pokemon *pokemon = &gPlayerParty[gBattleStruct->expGetterMonId];
+                        u16 species = GetMonData(pokemon, MON_DATA_SPECIES, NULL);
+                        u32 currExp = GetMonData(pokemon, MON_DATA_EXP, NULL);
+                        u8 levelCap = GetCurrentLevelCap();
+                        u32 expAtCap = gExperienceTables[gSpeciesInfo[species].growthRate][levelCap];
+
+                        if (currExp + gBattleMoveDamage > expAtCap)
+                            gBattleMoveDamage = expAtCap - currExp;
+                    }
+
                     // get exp getter battler
                     if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
                     {
