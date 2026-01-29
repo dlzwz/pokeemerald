@@ -2227,40 +2227,8 @@ void AnimTask_SetTargetToEffectBattler(u8 taskId)
 
 void TryShinyAnimation(u8 battler, struct Pokemon *mon)
 {
-    bool8 isShiny;
-    u32 otId, personality;
-    u32 shinyValue;
-    u8 taskCirc, taskDgnl;
-
-    isShiny = FALSE;
+    (void)mon;
     gBattleSpritesDataPtr->healthBoxesData[battler].triedShinyMonAnim = TRUE;
-    otId = GetMonData(mon, MON_DATA_OT_ID);
-    personality = GetMonData(mon, MON_DATA_PERSONALITY);
-
-    if (IsBattlerSpriteVisible(battler))
-    {
-        shinyValue = GET_SHINY_VALUE(otId, personality);
-        if (shinyValue < SHINY_ODDS)
-            isShiny = TRUE;
-
-        if (isShiny)
-        {
-            if (GetSpriteTileStartByTag(ANIM_TAG_GOLD_STARS) == 0xFFFF)
-            {
-                LoadCompressedSpriteSheetUsingHeap(&gBattleAnimPicTable[ANIM_TAG_GOLD_STARS - ANIM_SPRITES_START]);
-                LoadCompressedSpritePaletteUsingHeap(&gBattleAnimPaletteTable[ANIM_TAG_GOLD_STARS - ANIM_SPRITES_START]);
-            }
-
-            taskCirc = CreateTask(Task_ShinyStars, 10);
-            taskDgnl = CreateTask(Task_ShinyStars, 10);
-            gTasks[taskCirc].tBattler = battler;
-            gTasks[taskDgnl].tBattler = battler;
-            gTasks[taskCirc].tStarMove = SHINY_STAR_ENCIRCLE;
-            gTasks[taskDgnl].tStarMove = SHINY_STAR_DIAGONAL;
-            return;
-        }
-    }
-
     gBattleSpritesDataPtr->healthBoxesData[battler].finishedShinyMonAnim = TRUE;
 }
 
