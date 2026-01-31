@@ -2229,7 +2229,7 @@ const struct Item gItems[] =
         .description = sExpShareDesc,
         .pocket = POCKET_ITEMS,
         .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .fieldUseFunc = ItemUseOutOfBattle_ExpShare,
     },
 
     [ITEM_QUICK_CLAW] =
