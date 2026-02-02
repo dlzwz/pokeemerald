@@ -2639,10 +2639,8 @@ static bool8 ShouldShowFieldMoveInSubmenu(u8 fieldMoveIndex)
     case FIELD_MOVE_TELEPORT:
         return Overworld_MapTypeAllowsTeleportAndFly(gMapHeader.mapType);
 
-    // Dig: only where escape rope works OR at Sealed Chamber for Regice puzzle
+    // Dig: only where escape rope works
     case FIELD_MOVE_DIG:
-        if (ShouldDoBrailleDigEffect())
-            return TRUE;
         return CanUseDigOrEscapeRopeOnCurMap();
 
     // Sweet Scent: only when standing on an actual encounter tile (grass, cave, water)
@@ -2705,7 +2703,7 @@ static void SetPartyMonFieldSelectionActions(struct Pokemon *mons, u8 slotId)
                 // to allow Pokemon that can learn them to use them without knowing them
                 if (sFieldMoves[j] == MOVE_FLY || sFieldMoves[j] == MOVE_FLASH
                     || sFieldMoves[j] == MOVE_DIG || sFieldMoves[j] == MOVE_TELEPORT
-                    || sFieldMoves[j] == MOVE_SWEET_SCENT)
+                    || sFieldMoves[j] == MOVE_SWEET_SCENT || sFieldMoves[j] == MOVE_ROCK_SMASH)
                     break;
 
                 // Only add the field move if context is appropriate
@@ -2761,6 +2759,16 @@ static void SetPartyMonFieldSelectionActions(struct Pokemon *mons, u8 slotId)
         && SpeciesCanLearnMoveByLevelUp(GetMonData(&mons[slotId], MON_DATA_SPECIES, NULL), MOVE_SWEET_SCENT))
     {
         AppendToList(sPartyMenuInternal->actions, &sPartyMenuInternal->numActions, FIELD_MOVE_SWEET_SCENT + MENU_FIELD_MOVES);
+    }
+
+    // If Mon can learn HM06 (Rock Smash), has badge, has HM, and context is appropriate, add ROCK_SMASH to action list
+    if (sPartyMenuInternal->numActions < 5
+        && ShouldShowFieldMoveInSubmenu(FIELD_MOVE_ROCK_SMASH)
+        && FlagGet(FLAG_BADGE03_GET)  // Dynamo Badge
+        && CheckBagHasItem(ITEM_HM06, 1)
+        && CanMonLearnTMHM(&mons[slotId], ITEM_HM06 - ITEM_TM01))
+    {
+        AppendToList(sPartyMenuInternal->actions, &sPartyMenuInternal->numActions, FIELD_MOVE_ROCK_SMASH + MENU_FIELD_MOVES);
     }
 
     if (!InBattlePike())
