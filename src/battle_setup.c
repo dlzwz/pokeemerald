@@ -955,14 +955,12 @@ static void CB2_EndFirstBattle(void)
 
 static void TryUpdateGymLeaderRematchFromWild(void)
 {
-    if (GetGameStat(GAME_STAT_WILD_BATTLES) % 60 == 0)
-        UpdateGymLeaderRematch();
+    UpdateGymLeaderRematch();
 }
 
 static void TryUpdateGymLeaderRematchFromTrainer(void)
 {
-    if (GetGameStat(GAME_STAT_TRAINER_BATTLES) % 20 == 0)
-        UpdateGymLeaderRematch();
+    UpdateGymLeaderRematch();
 }
 
 // why not just use the macros? maybe its because they didnt want to uncast const every time?
@@ -1616,8 +1614,7 @@ static bool32 UpdateRandomTrainerRematches(const struct RematchTrainer *table, u
                 // Trainer already wants a rematch. Don't bother updating it.
                 ret = TRUE;
             }
-            else if (FlagGet(TRAINER_REGISTERED_FLAGS_START + i)
-             && (Random() % 100) <= 30)  // 31% chance of getting a rematch.
+            else if (FlagGet(TRAINER_REGISTERED_FLAGS_START + i))
             {
                 SetRematchIdForTrainer(table, i);
                 ret = TRUE;
@@ -1753,12 +1750,9 @@ static u32 GetTrainerMatchCallFlag(u32 trainerId)
 
 static void RegisterTrainerInMatchCall(void)
 {
-    if (FlagGet(FLAG_HAS_MATCH_CALL))
-    {
-        u32 matchCallFlagId = GetTrainerMatchCallFlag(gTrainerBattleOpponent_A);
-        if (matchCallFlagId != 0xFFFF)
-            FlagSet(matchCallFlagId);
-    }
+    u32 matchCallFlagId = GetTrainerMatchCallFlag(gTrainerBattleOpponent_A);
+    if (matchCallFlagId != 0xFFFF)
+        FlagSet(matchCallFlagId);
 }
 
 static bool8 WasSecondRematchWon(const struct RematchTrainer *table, u16 firstBattleTrainerId)
@@ -1812,8 +1806,7 @@ static bool32 IsRematchStepCounterMaxed(void)
 
 void TryUpdateRandomTrainerRematches(u16 mapGroup, u16 mapNum)
 {
-    if (IsRematchStepCounterMaxed() && UpdateRandomTrainerRematches(gRematchTable, mapGroup, mapNum) == TRUE)
-        gSaveBlock1Ptr->trainerRematchStepCounter = 0;
+    UpdateRandomTrainerRematches(gRematchTable, mapGroup, mapNum);
 }
 
 bool32 DoesSomeoneWantRematchIn(u16 mapGroup, u16 mapNum)
@@ -1851,8 +1844,12 @@ bool8 IsTrainerReadyForRematch(void)
 
 static void HandleRematchVarsOnBattleEnd(void)
 {
+    s32 tableId = TrainerIdToRematchTableId(gRematchTable, gTrainerBattleOpponent_A);
     ClearTrainerWantRematchState(gRematchTable, gTrainerBattleOpponent_A);
     SetBattledTrainersFlags();
+    // Immediately queue the next rematch so the trainer is ready right away
+    if (tableId != -1)
+        SetRematchIdForTrainer(gRematchTable, tableId);
 }
 
 void ShouldTryGetTrainerScript(void)
